@@ -1,0 +1,89 @@
+version: "3.7"
+
+services:
+  # Cassandra
+  cassandra:
+    restart: always
+    image: bitnami/cassandra
+    hostname: cassandra
+    container_name: cassandra
+    ports:
+      - "7000:7000" # Transport
+      - "7199:7199" # JMX
+      - "9042:9042" # Client
+    networks:
+      - backend
+    # environment:
+    #   - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
+    volumes:
+      - type: volume
+        source: cassandra-data
+        target: /bitnami
+  # MongoDB
+  mongodb:
+    restart: always
+    image: mongo
+    hostname: mongodb
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - backend
+    volumes:
+      - type: volume
+        source: mongodb-data
+        target: /data/db
+      - type: volume
+        source: mongodb-conf
+        target: /data/configdb
+    #command: --bind_ip_all --smallfiles --auth
+
+  #Postgresql
+  postgresql:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: toor
+      POSTGRES_USER: root
+      POSTGRES_DB: TEST_DB
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    volumes:
+      - type: volume
+        source: postgresql_data_vol
+        target: /var/lib/postgresql/data
+  # Mysql
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+    # env_file: .env
+    environment:
+      - MYSQL_DATABASE=TEST_DB
+      - MYSQL_ROOT_PASSWORD=toor
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - type: volume
+        source: mysqldata
+        target: /var/lib/mysql
+    # command: "--default-authentication-plugin=mysql_native_password"
+    networks:
+      - backend
+
+# Network
+networks:
+  backend:
+volumes:
+  # Cassandra Volume
+  cassandra-data:
+  # MongoDB Volumes
+  mongodb-data:
+  mongodb-conf:
+  # Postgresql Volumes
+  postgresql_data_vol:
+  # Mysql Volume
+  mysqldata:
